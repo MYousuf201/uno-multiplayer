@@ -170,6 +170,11 @@ function startGame(room) {
   room.pendingDraw = 0;
   room.pendingDrawType = null;
   room.winner = null;
+  room.colorPicker = null;
+  room.unoAtRisk = null;
+  room.pendingAction = null;
+  room.finishedOrder = [];
+  room.winner = null;
   room.log.push({ text: 'Game started. First card: ' + first.color + ' ' + first.value, kind: 'system' });
 }
 
