@@ -425,7 +425,6 @@ function showWinner(winner, state) {
   });
   const isHost = state && state.hostId === socket.id;
   const rematchBtn = $('#rematchBtn');
-  const leaveBtn = $('#leaveAfterWinBtn');
   const hint = $('#rematchHint');
   if (isHost) {
     rematchBtn.disabled = false;
@@ -439,11 +438,6 @@ function showWinner(winner, state) {
 }
 $('#rematchBtn').addEventListener('click', () => {
   socket.emit('rematch');
-});
-$('#leaveAfterWinBtn').addEventListener('click', () => {
-  socket.emit('leaveRoom');
-  state.room = null;
-  setTimeout(() => location.reload(), 300);
 });
 
 /* ===== Card click handler ===== */
