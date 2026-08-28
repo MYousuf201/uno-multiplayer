@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>UNO — A House Classic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<!-- ===== Lobby ===== -->
+<section id="lobby" class="screen active">
+  <div class="lobby-card">
+    <div class="brand">
+      <h1>U N O</h1>
+      <span>play with anyone, anywhere</span>
+    </div>
+    <p class="lede">Host a table, share a code, and play in real time with friends — no accounts, no installs.</p>
+
+    <div class="lobby-form">
+      <label class="field">
+        <span>Your name</span>
+        <input id="nameInput" type="text" maxlength="16" placeholder="Enter a name" />
+      </label>
+
+      <div class="lobby-actions">
+        <button id="createBtn" class="btn btn-gold">Create a room</button>
+        <div class="divider"><span>or</span></div>
+        <div class="join-row">
+          <input id="codeInput" type="text" maxlength="4" placeholder="CODE" class="code-input" />
+          <button id="joinBtn" class="btn btn-ghost">Join</button>
+        </div>
+      </div>
+      <p id="lobbyError" class="error"></p>
+    </div>
+
+    <div class="lobby-footer">
+      <span>2–8 players</span><span>·</span><span>free forever</span><span>·</span><span>no sign-up</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Game ===== -->
+<section id="game" class="screen">
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="brand-mini">
+        <span class="logo-mark">U</span>
+        <h1>UNO</h1>
+      </div>
+      <div class="room-chip" id="roomChip">
+        <span class="room-label">Room</span>
+        <span class="room-code" id="roomCode">----</span>
+        <button id="copyCode" class="copy-btn" title="Copy code">⎘</button>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button id="leaveBtn" class="btn btn-ghost small">Leave</button>
+    </div>
+  </header>
+
+  <!-- Waiting / pre-game -->
+  <div id="waitingPanel" class="panel center-panel">
+    <div class="card waiting-card">
+      <div class="waiting-eyebrow">Waiting for players</div>
+      <h2>Share the code to start</h2>
+      <div class="big-code" id="bigCode">----</div>
+      <p class="muted">Anyone with this code can join. Game starts when the host presses start (minimum 2 players).</p>
+      <div class="player-grid" id="waitingPlayers"></div>
+
+      <div class="rules-section" id="rulesSection">
+        <div class="rules-header">
+          <span class="rules-eyebrow">House rules</span>
+          <span class="rules-locked" id="rulesLocked">host only</span>
+        </div>
+        <div class="rule-row">
+          <div class="rule-info">
+            <div class="rule-name">Stack +4 on +2</div>
+            <div class="rule-desc">A wild +4 can be played on top of a +2 to keep the pile going.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="ruleStack4on2" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="rule-row">
+          <div class="rule-info">
+            <div class="rule-name">7 — Swap hands</div>
+            <div class="rule-desc">Playing a 7 lets you swap your hand with another player's hand.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="rule7Swap" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="rule-row">
+          <div class="rule-info">
+            <div class="rule-name">0 — Rotate all hands</div>
+            <div class="rule-desc">Playing a 0 passes every player's hand to the next player in play order.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="rule0Rotate" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="waiting-actions">
+        <button id="startBtn" class="btn btn-gold" disabled>Start game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active game -->
+  <div id="playPanel" class="play-layout hidden">
+
+    <!-- Opponents strip -->
+    <div class="opponents" id="opponents"></div>
+
+    <!-- Table -->
+    <div class="table-area">
+      <div class="turn-banner" id="turnBanner">
+        <span class="turn-dot" id="turnDot"></span>
+        <span id="turnText">Waiting...</span>
+      </div>
+
+      <div class="table-felt">
+        <div class="deck-stack">
+          <div class="deck-card-back"></div>
+          <div class="deck-card-back deck-card-back-2"></div>
+          <button id="drawBtn" class="deck-card-back deck-card-back-top" title="Draw a card">
+            <span class="deck-logo">UNO</span>
+          </button>
+          <div class="deck-count" id="deckCount">0</div>
+        </div>
+
+        <div class="discard-pile" id="discardPile">
+          <!-- discard card rendered here -->
+        </div>
+      </div>
+
+      <div class="color-indicator" id="colorIndicator">
+        <span>Active color</span>
+        <div class="color-pill" id="colorPill"></div>
+      </div>
+    </div>
+
+    <!-- Your hand -->
+    <div class="hand-area">
+      <div class="hand-meta">
+        <div class="hand-meta-left">
+          <span class="hand-label">Your hand</span>
+          <span class="hand-count" id="handCount">0</span>
+        </div>
+        <button id="unoBtn" class="btn btn-gold small uno-btn" disabled>UNO!</button>
+      </div>
+      <div class="hand" id="hand"></div>
+    </div>
+
+  </div>
+
+  <!-- Activity log floating -->
+  <aside class="log-card card">
+    <h3>Activity</h3>
+    <div class="log-list" id="log"></div>
+  </aside>
+
+  <!-- Color picker modal -->
+  <div id="colorModal" class="modal-backdrop hidden">
+    <div class="ticket">
+      <div class="ticket-eyebrow">Wild card</div>
+      <h2>Pick a color</h2>
+      <p class="muted">Choose the color the next player must match.</p>
+      <div class="color-choices">
+        <button class="color-choice" data-color="red" style="background:#e63946;"></button>
+        <button class="color-choice" data-color="yellow" style="background:#ffd60a;"></button>
+        <button class="color-choice" data-color="green" style="background:#06d6a0;"></button>
+        <button class="color-choice" data-color="blue" style="background:#3a86ff;"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Winner modal -->
+  <div id="winnerModal" class="modal-backdrop hidden">
+    <div class="ticket winner-ticket">
+      <div class="ticket-eyebrow">Game over</div>
+      <h2 id="winnerTitle">— wins!</h2>
+      <div class="scoreboard" id="scoreboard"></div>
+      <hr class="perf" />
+      <button id="playAgainBtn" class="btn btn-gold" style="width:100%;">Play again</button>
+    </div>
+  </div>
+
+  <!-- Stacked draw prompt -->
+  <div id="stackModal" class="modal-backdrop hidden">
+    <div class="ticket">
+      <div class="ticket-eyebrow">You drew a card</div>
+      <h2 id="stackTitle">Play or keep?</h2>
+      <p class="muted" id="stackDesc">You can play it immediately or keep it and pass the turn.</p>
+      <div class="ticket-actions">
+        <button id="stackKeep" class="btn btn-ghost">Keep & pass</button>
+        <button id="stackPlay" class="btn btn-gold">Play it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Swap target modal (7 card) -->
+  <div id="swapModal" class="modal-backdrop hidden">
+    <div class="ticket">
+      <div class="ticket-eyebrow">Seven — swap hands</div>
+      <h2>Pick a player</h2>
+      <p class="muted">Choose whose hand you want to swap with.</p>
+      <div class="swap-choices" id="swapChoices"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+</section>
+
+<script>
+  // Optional: override backend URL. Set this in Vercel env or hardcode here
+  // for a split deploy (frontend on Vercel, backend on Render/Railway).
+  // Example: window.__UNO_BACKEND_URL__ = 'https://uno-backend.onrender.com';
+</script>
+<script src="/config.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
