@@ -327,6 +327,16 @@ io.on('connection', (socket) => {
     broadcast(room);
   });
 
+  socket.on('rematch', () => {
+    const room = rooms.get(myRoomCode);
+    if (!room) return;
+    if (socket.id !== room.hostId) { socket.emit('errorMsg', { text: 'Only the host can rematch' }); return; }
+    if (room.players.length < 2) { socket.emit('errorMsg', { text: 'Need at least 2 players' }); return; }
+    startGame(room);
+    room.log.push({ text: 'Rematch! House rules and players kept.', kind: 'system' });
+    broadcast(room);
+  });
+
   socket.on('setRules', ({ rules }) => {
     const room = rooms.get(myRoomCode);
     if (!room) return;

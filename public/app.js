@@ -30,34 +30,34 @@ function svgFor(type, value) {
 
 function numberSVG(n) {
   return `<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="50" cy="70" rx="36" ry="48" fill="rgba(255,255,255,0.18)"/>
-    <text x="50" y="92" text-anchor="middle" font-family="Playfair Display" font-weight="800" font-size="80" fill="#fff" stroke="rgba(0,0,0,0.18)" stroke-width="1.5">${n}</text>
+    <ellipse cx="50" cy="70" rx="36" ry="48" fill="#fff"/>
+    <text x="50" y="92" text-anchor="middle" font-family="Playfair Display" font-weight="800" font-size="80" fill="#1c1c1c">${n}</text>
   </svg>`;
 }
 
 function symbolSVG(kind) {
   const svgs = {
     'no-entry': `<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="70" rx="38" ry="50" fill="rgba(255,255,255,0.18)"/>
-      <circle cx="50" cy="70" r="26" fill="none" stroke="#fff" stroke-width="6"/>
-      <line x1="32" y1="88" x2="68" y2="52" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+      <ellipse cx="50" cy="70" rx="38" ry="50" fill="#fff"/>
+      <circle cx="50" cy="70" r="26" fill="none" stroke="#1c1c1c" stroke-width="6"/>
+      <line x1="32" y1="88" x2="68" y2="52" stroke="#1c1c1c" stroke-width="6" stroke-linecap="round"/>
     </svg>`,
     'arrows': `<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="70" rx="38" ry="50" fill="rgba(255,255,255,0.18)"/>
-      <path d="M30 60 L60 30 L60 45 L78 45 L78 75 L60 75 L60 90 Z" fill="#fff" transform="rotate(-30 50 70)"/>
-      <path d="M70 80 L40 110 L40 95 L22 95 L22 65 L40 65 L40 50 Z" fill="#fff" transform="rotate(-30 50 70)"/>
+      <ellipse cx="50" cy="70" rx="38" ry="50" fill="#fff"/>
+      <path d="M30 60 L60 30 L60 45 L78 45 L78 75 L60 75 L60 90 Z" fill="#1c1c1c" transform="rotate(-30 50 70)"/>
+      <path d="M70 80 L40 110 L40 95 L22 95 L22 65 L40 65 L40 50 Z" fill="#1c1c1c" transform="rotate(-30 50 70)"/>
     </svg>`,
     'plus2': `<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="70" rx="38" ry="50" fill="rgba(255,255,255,0.18)"/>
-      <text x="50" y="78" text-anchor="middle" font-family="Playfair Display" font-weight="800" font-size="38" fill="#fff">+2</text>
+      <ellipse cx="50" cy="70" rx="38" ry="50" fill="#fff"/>
+      <text x="50" y="78" text-anchor="middle" font-family="Playfair Display" font-weight="800" font-size="38" fill="#1c1c1c">+2</text>
     </svg>`,
     'star': `<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="70" rx="38" ry="50" fill="rgba(255,255,255,0.18)"/>
-      <path d="M50 30 L60 55 L86 58 L66 75 L72 100 L50 86 L28 100 L34 75 L14 58 L40 55 Z" fill="#fff"/>
+      <ellipse cx="50" cy="70" rx="38" ry="50" fill="#fff"/>
+      <path d="M50 30 L60 55 L86 58 L66 75 L72 100 L50 86 L28 100 L34 75 L14 58 L40 55 Z" fill="#1c1c1c"/>
     </svg>`,
     'plus4': `<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="70" rx="38" ry="50" fill="rgba(255,255,255,0.18)"/>
-      <text x="50" y="78" text-anchor="middle" font-family="Playfair Display" font-weight="800" font-size="38" fill="#fff">+4</text>
+      <ellipse cx="50" cy="70" rx="38" ry="50" fill="#fff"/>
+      <text x="50" y="78" text-anchor="middle" font-family="Playfair Display" font-weight="800" font-size="38" fill="#1c1c1c">+4</text>
     </svg>`
   };
   return svgs[kind];
@@ -70,6 +70,7 @@ function renderCard(card, opts = {}) {
   if (card.color === 'wild') {
     cls.push('wild');
     if (opts.wildRotate) cls.push('wild-rotate');
+    // Override background with a four-quadrant solid color split via inline style
   } else {
     cls.push(card.color);
   }
@@ -83,7 +84,15 @@ function renderCard(card, opts = {}) {
   const center = isWild && (card.type === 'wild' || card.type === 'wild4')
     ? `<div class="wild-logo">${card.chosenColor ? card.chosenColor[0].toUpperCase() : 'W'}</div>`
     : `<div class="center-icon">${svgFor(card.type, card.value)}</div>`;
-  return `<div class="${cls.join(' ')}" data-card-id="${card.id}">
+  let wildBgStyle = '';
+  if (card.color === 'wild') {
+    // Solid four-color quadrants (no gradients, no transparency)
+    wildBgStyle = `background:
+      linear-gradient(90deg, var(--red) 50%, var(--blue) 50%) 0 0/100% 50% no-repeat,
+      linear-gradient(90deg, var(--yellow) 50%, var(--green) 50%) 0 100%/100% 50% no-repeat;
+      background-color: var(--red);`;
+  }
+  return `<div class="${cls.join(' ')}" data-card-id="${card.id}" style="${wildBgStyle}">
     <div class="corner-tl">${corner}</div>
     <div class="corner-br">${corner}</div>
     <div class="uno-card-inner">${center}</div>
@@ -91,10 +100,10 @@ function renderCard(card, opts = {}) {
 }
 
 function renderBack() {
-  return `<div class="uno-card" style="background:linear-gradient(180deg, var(--ink) 0%, #2a3554 100%);">
-    <div class="corner-tl" style="color:#fff;opacity:0.3;">UNO</div>
+  return `<div class="uno-card" style="background:#1c1c1c;">
+    <div class="corner-tl" style="color:#fff;opacity:0.6;">UNO</div>
     <div class="uno-card-inner">
-      <div class="wild-logo" style="background:linear-gradient(135deg, var(--red), var(--gold-2)); color:#fff; font-size:14px;">UNO</div>
+      <div class="wild-logo" style="background:var(--gold-1); color:#1c1c1c; font-size:14px;">UNO</div>
     </div>
   </div>`;
 }
@@ -373,7 +382,7 @@ function renderPlay(state) {
 
   // Winner
   if (state.winner) {
-    showWinner(state.winner);
+    showWinner(state.winner, state);
   } else {
     $('#winnerModal').classList.add('hidden');
   }
@@ -395,7 +404,7 @@ function renderLog(log) {
   });
 }
 
-function showWinner(winner) {
+function showWinner(winner, state) {
   $('#winnerModal').classList.remove('hidden');
   $('#winnerTitle').textContent = `${winner.name} wins!`;
   const sb = $('#scoreboard');
@@ -411,8 +420,28 @@ function showWinner(winner) {
     `;
     sb.appendChild(div);
   });
+  const isHost = state && state.hostId === socket.id;
+  const rematchBtn = $('#rematchBtn');
+  const leaveBtn = $('#leaveAfterWinBtn');
+  const hint = $('#rematchHint');
+  if (isHost) {
+    rematchBtn.disabled = false;
+    rematchBtn.textContent = 'Rematch';
+    hint.textContent = 'You can start a new game with the same players and rules.';
+  } else {
+    rematchBtn.disabled = true;
+    rematchBtn.textContent = 'Waiting for host...';
+    hint.textContent = 'Only the host can start a rematch.';
+  }
 }
-$('#playAgainBtn').addEventListener('click', () => location.reload());
+$('#rematchBtn').addEventListener('click', () => {
+  socket.emit('rematch');
+});
+$('#leaveAfterWinBtn').addEventListener('click', () => {
+  socket.emit('leaveRoom');
+  state.room = null;
+  setTimeout(() => location.reload(), 300);
+});
 
 /* ===== Card click handler ===== */
 function onCardClick(card) {
