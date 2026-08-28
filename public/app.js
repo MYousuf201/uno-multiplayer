@@ -1,6 +1,9 @@
 const BACKEND_URL = (window.UNO_CONFIG && window.UNO_CONFIG.backendUrl) || window.location.origin;
 const socket = BACKEND_URL ? io(BACKEND_URL, { transports: ['websocket', 'polling'] }) : io();
 
+// Build tag — useful for confirming the deployed version
+window.__UNO_BUILD__ = 'rematch-fix-v2';
+
 const COLORS_HEX = [
   '#e63946', '#3a86ff', '#06d6a0', '#ffb703',
   '#9d4edd', '#ff7e5f', '#2a9d8f', '#ff5d8f'
