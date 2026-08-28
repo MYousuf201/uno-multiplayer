@@ -19,6 +19,8 @@ const state = {
   pendingDrawn: null
 };
 
+let suppressNextColorPicker = false;
+
 const SVG_CACHE = {};
 
 function svgFor(type, value) {
@@ -254,7 +256,9 @@ function renderPlay(state) {
 
   // Server-driven color picker (wild/wild4 just played)
   if (state.colorPicker && state.colorPicker.playerId === socket.id) {
-    if ($('#colorModal').classList.contains('hidden')) {
+    if (suppressNextColorPicker) {
+      suppressNextColorPicker = false;
+    } else if ($('#colorModal').classList.contains('hidden')) {
       openServerColorModal();
     }
   } else {
@@ -473,6 +477,8 @@ $$('.color-choice').forEach(btn => {
     if (cardId === '__server__') {
       socket.emit('chooseColor', { color });
     } else {
+      // Hand-initiated wild: tell server to ignore the auto colorPicker this turn.
+      suppressNextColorPicker = true;
       socket.emit('playCard', { cardId, chosenColor: color });
     }
   });
