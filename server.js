@@ -616,12 +616,24 @@ io.on('connection', (socket) => {
     const idx = room.players.findIndex(p => p.id === socket.id);
     if (idx === -1) { myRoomCode = null; return; }
     const leaving = room.players[idx];
+    const wasCurrent = (idx === room.currentPlayer);
+    const beforeCurrent = idx < room.currentPlayer;
     room.players.splice(idx, 1);
     room.log.push({ text: `${leaving.name} left the game`, kind: 'system' });
-    if (room.currentPlayer >= room.players.length) room.currentPlayer = 0;
     if (room.players.length === 0) {
       rooms.delete(myRoomCode);
     } else {
+      // Adjust currentPlayer index after the splice.
+      if (wasCurrent) {
+        // It was their turn — advance to the next player (or back to 0 if list shrank past us).
+        // Don't advance on a reverse with 2 players' worth of behavior; just move to next index.
+        if (room.currentPlayer >= room.players.length) room.currentPlayer = 0;
+      } else if (beforeCurrent) {
+        // Someone earlier in the list left; shift our index down to keep pointing at the same person.
+        room.currentPlayer = room.currentPlayer - 1;
+      }
+      // If currentPlayer is now past the end (last person left), wrap to 0.
+      if (room.currentPlayer >= room.players.length) room.currentPlayer = 0;
       if (room.hostId === socket.id) room.hostId = room.players[0].id;
       broadcast(room);
     }
