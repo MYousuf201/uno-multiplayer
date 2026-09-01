@@ -450,6 +450,15 @@ io.on('connection', (socket) => {
     }
 
     if (card.type === 'wild' || card.type === 'wild4') {
+      if (chosenColor && ['red','yellow','green','blue'].includes(chosenColor)) {
+        // Player already chose a color in the hand-initiated flow.
+        // Set it on the card and apply effects immediately.
+        playedCard.chosenColor = chosenColor;
+        room.currentColor = chosenColor;
+        applyCardEffects(room, playedCard, meIdx);
+        broadcast(room);
+        return;
+      }
       room.colorPicker = { playerId: player.id, cardId: card.id };
       broadcast(room);
       return;
