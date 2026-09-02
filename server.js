@@ -102,7 +102,8 @@ function createRoom(hostSocketId, hostName) {
     rules: {
       stackDraw4OnDraw2: false,
       sevenSwap: false,
-      zeroRotate: false
+      zeroRotate: false,
+      randomizeOrder: false
     },
     pendingAction: null
   };
@@ -152,6 +153,13 @@ function isPlayable(card, topCard, currentColor) {
 }
 
 function startGame(room) {
+  // Optionally randomize the seating order so the same player doesn't always go first.
+  if (room.rules && room.rules.randomizeOrder) {
+    for (let i = room.players.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [room.players[i], room.players[j]] = [room.players[j], room.players[i]];
+    }
+  }
   const deck = shuffle(buildDeck());
   room.drawPile = deck;
   room.discardPile = [];
@@ -358,7 +366,8 @@ io.on('connection', (socket) => {
     room.rules = {
       stackDraw4OnDraw2: !!rules.stackDraw4OnDraw2,
       sevenSwap: !!rules.sevenSwap,
-      zeroRotate: !!rules.zeroRotate
+      zeroRotate: !!rules.zeroRotate,
+      randomizeOrder: !!rules.randomizeOrder
     };
     broadcast(room);
   });

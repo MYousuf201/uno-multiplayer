@@ -107,6 +107,16 @@
             <span class="slider"></span>
           </label>
         </div>
+        <div class="rule-row">
+          <div class="rule-info">
+            <div class="rule-name">Randomize turn order</div>
+            <div class="rule-desc">Shuffle the seating order at the start of every game so the same player doesn't always go first.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="ruleRandomizeOrder" />
+            <span class="slider"></span>
+          </label>
+        </div>
       </div>
 
       <div class="waiting-actions">
@@ -192,6 +202,7 @@
       <div class="scoreboard" id="scoreboard"></div>
       <hr class="perf" />
       <button id="rematchBtn" class="btn btn-gold" style="width:100%;">Rematch</button>
+      <button id="returnHomeBtn" class="btn btn-ghost" style="width:100%; margin-top:8px;">Return to home</button>
       <p id="rematchHint" class="muted" style="margin:10px 0 0; text-align:center;"></p>
     </div>
   </div>

@@ -207,12 +207,14 @@ function renderRules(state, isHost) {
   const stack = $('#ruleStack4on2');
   const seven = $('#rule7Swap');
   const zero = $('#rule0Rotate');
+  const rand = $('#ruleRandomizeOrder');
   const lock = $('#rulesLocked');
   const canEdit = isHost && !state.started;
-  [stack, seven, zero].forEach(input => { input.disabled = !canEdit; });
+  [stack, seven, zero, rand].forEach(input => { input.disabled = !canEdit; });
   stack.checked = !!r.stackDraw4OnDraw2;
   seven.checked = !!r.sevenSwap;
   zero.checked = !!r.zeroRotate;
+  rand.checked = !!r.randomizeOrder;
   if (canEdit) {
     lock.textContent = 'host only';
     lock.classList.remove('active');
@@ -230,11 +232,12 @@ function emitRules() {
     rules: {
       stackDraw4OnDraw2: $('#ruleStack4on2').checked,
       sevenSwap: $('#rule7Swap').checked,
-      zeroRotate: $('#rule0Rotate').checked
+      zeroRotate: $('#rule0Rotate').checked,
+      randomizeOrder: $('#ruleRandomizeOrder').checked
     }
   });
 }
-['ruleStack4on2', 'rule7Swap', 'rule0Rotate'].forEach(id => {
+['ruleStack4on2', 'rule7Swap', 'rule0Rotate', 'ruleRandomizeOrder'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('change', emitRules);
 });
@@ -442,6 +445,11 @@ function showWinner(winner, state) {
 }
 $('#rematchBtn').addEventListener('click', () => {
   socket.emit('rematch');
+});
+$('#returnHomeBtn').addEventListener('click', () => {
+  socket.emit('leaveRoom');
+  state.room = null;
+  setTimeout(() => location.reload(), 200);
 });
 
 /* ===== Card click handler ===== */
